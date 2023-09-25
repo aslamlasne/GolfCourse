@@ -1,0 +1,112 @@
+psql postgres
+
+CREATE ROLE golfcourseuser WITH LOGIN PASSWORD 'golfpassword';
+
+ALTER ROLE me CREATEDB;
+
+\q
+
+psql -d postgres -U golfcourseuser
+
+CREATE DATABASE golfdatabase;
+
+\c golfdatabase
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(30),
+  gender VARCHAR(20),
+  date_of_birth DATE,
+  username VARCHAR(20),
+  password VARCHAR(100),
+  email VARCHAR(100),
+  handicap INT,
+  calculated_on TIMESTAMP
+);
+
+
+INSERT INTO users (name, gender, date_of_birth, username, password, email, handicap, calculated_on) 
+VALUES ('John Doe','Male','06/06/1966', 'johndoe', 'jdpassword','jdoe@email.com', 12, '01/01/1988');
+
+ALTER TABLE users RENAME COLUMN dateofbirth TO date_of_birth;
+ALTER TABLE users RENAME COLUMN calculatedon TO calculated_on;
+ALTER TABLE users ADD COLUMN email default ''
+
+CREATE TABLE golfcourses (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(30),
+  address VARCHAR(100),
+  zip VARCHAR(20)
+);
+
+INSERT INTO golfcourses ( name, address, zip ) VALUES ( 'East Play Golf Club', '1470, 14th Street, Plano', '71074' );
+
+
+CREATE TABLE holes (
+  id SERIAL PRIMARY KEY,
+  hole_number INT,
+  hole_index INT,
+  distance_to_hole NUMERIC (7,2),
+  par_strokes INT,
+  course_id INT,
+  FOREIGN KEY (course_id)
+  REFERENCES golfcourses ( id )
+  ON DELETE CASCADE
+);
+
+ALTER TABLE holes RENAME COLUMN par_stokes TO par_strokes;
+
+INSERT INTO holes (
+  hole_number,
+  hole_index,
+  distance_to_hole,
+  par_strokes,
+  course_id
+) VALUES (
+  1,
+  10,
+  225.4,
+  4,
+  1
+);
+
+SELECT 
+  hole_number,
+  hole_index,
+  distance_to_hole,
+  par_strokes,
+  course_id
+FROM
+  holes;
+
+CREATE TABLE score_cards (
+  id SERIAL PRIMARY KEY,
+  played_on TIMESTAMP,
+  holes_played INT,
+  gross_score INT,
+  handicap INT,
+  course_id INT,
+  FOREIGN KEY (course_id)
+  REFERENCES golfcourses ( id )
+  ON DELETE CASCADE,
+  player_id INT,
+  FOREIGN KEY (player_id)
+  REFERENCES users ( id )
+  ON DELETE CASCADE
+);
+
+CREATE TABLE hole_scores (
+  id SERIAL PRIMARY KEY,
+  strokes INT,
+  score INT,
+  hole_id INT,
+  FOREIGN KEY (hole_id)
+  REFERENCES holes ( id )
+  ON DELETE CASCADE,
+  card_id INT,
+  FOREIGN KEY (card_id)
+  REFERENCES score_cards ( id )
+  ON DELETE CASCADE
+);
+
+
