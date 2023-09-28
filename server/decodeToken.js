@@ -4,7 +4,7 @@ const decodedToken = (req, requireAuth = true) => {
     
   if (header){
     const token = header.replace('Bearer ', '');
-    const decoded = jwt.verify(token, 'supersecret');
+    const decoded = jwt.verify(token, process.env.TOKEN_KEY);
     return decoded;
   }
   if (requireAuth) {

@@ -22,3 +22,12 @@ export const FormatDate = (dateIn: string) => {
   }
   return '';
 }
+
+export const TimeStamp = (dateIn: string) => {
+  const datetime = (new Date(dateIn));
+  var dateString = new Date(
+    datetime.getTime() - datetime.getTimezoneOffset() * 60000
+  );
+  var curr_time = dateString.toISOString();
+  return curr_time;
+}

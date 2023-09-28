@@ -1,213 +1,214 @@
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
 const { decodedToken } = require('../decodeToken');
+const bcrypt = require('bcryptjs');
 
 const resolvers = {
   Query: {
-    users: async (_, __, { dataSources }, { req }) => {
-      console.log(`users - req - ${req}`)
+    users: async (_, __, { req, dbDataSource }) => {
+      console.log(`users - req - ${JSON.stringify(req.req.headers.authorization)}`)
       const decoded = decodedToken(req);
-      const result = await dataSources.dbDataSource.getAllUsers();
+      const result = await dbDataSource.getAllUsers();
       const items = JSON.stringify(result);
       return JSON.parse(items);
     },
 
-    user: async (_, args, { dataSources }, { req }) => {
+    user: async (_, args, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const id = Number(args.id);
-      const result = await dataSources.dbDataSource.getUser(id);
+      const result = await dbDataSource.getUser(id);
       const item = JSON.stringify(result);
       return JSON.parse(item);
     },
 
-    golfcourses: async (_, __, { dataSources }, { req }) => {
+    golfcourses: async (_, __, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
-      const result = await dataSources.dbDataSource.getAllGolfCourses();
+      const result = await dbDataSource.getAllGolfCourses();
       const items = JSON.stringify(result);
       return JSON.parse(items);
     },
 
-    golfcourse: async (_, args, { dataSources }, { req }) => {
+    golfcourse: async (_, args, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const id = Number(args.id);
-      const result = await dataSources.dbDataSource.getGolfCourse(id);
+      const result = await dbDataSource.getGolfCourse(id);
       const item = JSON.stringify(result);
       return JSON.parse(item);
     },
 
-    holes: async (_, __, { dataSources }, { req }) => {
+    holes: async (_, __, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
-      const result = await dataSources.dbDataSource.getAllHoles();
+      const result = await dbDataSource.getAllHoles();
       const items = JSON.stringify(result);
       return JSON.parse(items);
     },
 
-    hole: async (_, args, { dataSources }, { req }) => {
+    hole: async (_, args, { dbDataSource, req }) => {
       const id = Number(args.id);
-      const result = await dataSources.dbDataSource.getCourseHole(id);
+      const result = await dbDataSource.getCourseHole(id);
       const item = JSON.stringify(result);
       return JSON.parse(item);
     },
 
-    scorecards: async (_, __, { dataSources }, { req }) => {
+    scorecards: async (_, __, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
-      const result = await dataSources.dbDataSource.getAllScoreCards();
+      const result = await dbDataSource.getAllScoreCards();
       const items = JSON.stringify(result);
       return JSON.parse(items);
     },
 
-    scorecard: async (_, args, { dataSources }, { req }) => {
+    scorecard: async (_, args, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const id = Number(args.id);
-      const result = await dataSources.dbDataSource.getScoreCard(id);
+      const result = await dbDataSource.getScoreCard(id);
       const item = JSON.stringify(result);
       return JSON.parse(item);
     },
 
-    holescores: async (_, __, { dataSources }, { req }) => {
+    holescores: async (_, __, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
-      const result = await dataSources.dbDataSource.getAllHoleScores();
+      const result = await dbDataSource.getAllHoleScores();
       const items = JSON.stringify(result);
       return JSON.parse(items);
     },
 
-    holescore: async (_, args, { dataSources }, { req }) => {
+    holescore: async (_, args, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const id = Number(args.id);
-      const result = await dataSources.dbDataSource.getHoleScore(id);
+      const result = await dbDataSource.getHoleScore(id);
       const item = JSON.stringify(result);
       return JSON.parse(item);
     },
   },
   User: {
-    cards: async (parent, __, { dataSources }, { req }) => {
+    cards: async (parent, __, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const player_id = Number(parent.id);
-      const result = await dataSources.dbDataSource.getUserScoreCards(player_id);
+      const result = await dbDataSource.getUserScoreCards(player_id);
       const items = JSON.stringify(result);
       return JSON.parse(items);
     },
   },
   Hole: {
-    course: async (parent, _, { dataSources }, { req }) => {
+    course: async (parent, _, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const course_id = Number(parent.course_id);
-      const result = await dataSources.dbDataSource.getGolfCourse(course_id);
+      const result = await dbDataSource.getGolfCourse(course_id);
       const item = JSON.stringify(result);
       return JSON.parse(item);
     },
   },
   GolfCourse: {
-    holes: async (parent, _,{ dataSources }, { req }) => {
+    holes: async (parent, _,{ dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const course_id = Number(parent.id);
-      const result = await dataSources.dbDataSource.getAllCourseHoles(course_id);
+      const result = await dbDataSource.getAllCourseHoles(course_id);
       const items = JSON.stringify(result);
       return JSON.parse(items);
     },
-    cards: async (parent, __, { dataSources }, { req }) => {
+    cards: async (parent, __, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const course_id = Number(parent.id);
-      const result = await dataSources.dbDataSource.getCourseScoreCards(course_id);
+      const result = await dbDataSource.getCourseScoreCards(course_id);
       const items = JSON.stringify(result);
       return JSON.parse(items);
     },
   },
   ScoreCard: {
-    player: async (parent, __, { dataSources }, { req }) => {
+    player: async (parent, __, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const player_id = Number(parent.id);
-      const result = await dataSources.dbDataSource.getUser(player_id);
+      const result = await dbDataSource.getUser(player_id);
       const item = JSON.stringify(result);
       return JSON.parse(item);
     },
-    course: async (parent, __, { dataSources }, { req }) => {
+    course: async (parent, __, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const course_id = Number(parent.course_id);
-      const result = await dataSources.dbDataSource.getGolfCourse(course_id);
+      const result = await dbDataSource.getGolfCourse(course_id);
       const item = JSON.stringify(result);
       return JSON.parse(item);
     },
-    scores: async (parent, __, { dataSources }, { req }) => { // New
+    scores: async (parent, __, { dbDataSource, req }) => { // New
       const decoded = decodedToken(req);
       const card_id = Number(parent.id);
-      const result = await dataSources.dbDataSource.getCardScores(card_id);
+      const result = await dbDataSource.getCardScores(card_id);
       const items = JSON.stringify(result);
       return JSON.parse(items);
     }
   },
   HoleScore: {
-    score_card: async (parent, __, { dataSources }, { req }) => {
+    score_card: async (parent, __, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const score_card_id = Number(parent.score_card_id);
-      const result = await dataSources.dbDataSource.getScoreCard(score_card_id);
+      const result = await dbDataSource.getScoreCard(score_card_id);
       const item = JSON.stringify(result);
       return JSON.parse(item);
     },
-    hole: async (parent, __, { dataSources }, { req }) => {
+    hole: async (parent, __, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const hole_id = Number(parent.hole_id);
-      const result = await dataSources.dbDataSource.getCourseHole(hole_id);
+      const result = await dbDataSource.getCourseHole(hole_id);
       const item = JSON.stringify(result);
       return JSON.parse(item);
     }
   },
   Mutation: {
-    createGolfCourse: async (_, args, { dataSources }, { req }) => {
+    createGolfCourse: async (_, args, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const newCourse = args.newCourse;
-      const savedCourse = await dataSources.dbDataSource.addGolfCourse(newCourse);
+      const savedCourse = await dbDataSource.addGolfCourse(newCourse);
       return savedCourse;
     },
-    updateGolfCourse: async (_, args, { dataSources }, { req }) => {
+    updateGolfCourse: async (_, args, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const changedCourse = args.changedCourse;
-      const savedCourse = await dataSources.dbDataSource.updateGolfCourse(changedCourse);
+      const savedCourse = await dbDataSource.updateGolfCourse(changedCourse);
       return savedCourse;
     },
-    signUpUser: async (_, args, { dataSources }) => {
+    signUpUser: async (_, args, { dbDataSource }) => {
       const newUser = args.newUser;
       encryptedPassword = await bcrypt.hash(newUser.password, 10);
       newUser.password = encryptedPassword;
-      const savedUser = await dataSources.dbDataSource.addUser(newUser);
+      const savedUser = await dbDataSource.addUser(newUser);
       return savedUser;
     },
-    updateUser: async (_, args, { dataSources }, { req }) => {
+    updateUser: async (_, args, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       const changedUser = args.changedUser;
-      const existingUser = await dataSources.getUser(changedUser.id);
+      const existingUser = await dbDataSource.getUser(changedUser.id);
       if (args.changedUser.password != existingUser.password) {
         encryptedPassword = await bcrypt.hash(args.changedUser.password, 10);
         args.changedUser.password = encryptedPassword;
       }
-      const savedUser = await dataSources.dbDataSource.updateUser(changedUser);
+      const savedUser = await dbDataSource.updateUser(changedUser);
       return savedUser;
     },
-    addUpdateHole: async (_, args, { dataSources }, { req }) => {
+    addUpdateHole: async (_, args, { dbDataSource, req }) => {
       const decoded = decodedToken(req);
       var hole = args.hole;
       const hole_number = hole.hole_number;
       const course_id = hole.course_id;
       hole.course_id = course_id;
-      const existingCourse = await dataSources.dbDataSource.getGolfCourse(course_id);
+      const existingCourse = await dbDataSource.getGolfCourse(course_id);
       if (!existingCourse) {
         throw("Course not found!!!")
       }
-      var existingHole = await await dataSources.dbDataSource.getCourseHoleByHoleNumber(course_id, hole_number);
+      var existingHole = await await dbDataSource.getCourseHoleByHoleNumber(course_id, hole_number);
       if (existingHole) {
         existingHole.hole_index = hole.hole_index;
         existingHole.distance_to_hole = hole.distance_to_hole;
         existingHole.par_strokes = hole.par_strokes;
-        hole = await dataSources.dbDataSource.updateCourseHole(existingHole);
+        hole = await dbDataSource.updateCourseHole(existingHole);
       } else {
-        hole = await dataSources.dbDataSource.addCourseHole(hole);
+        hole = await dbDataSource.addCourseHole(hole);
       }
       return hole;
     },
-    signInUser: async (_, args, { dataSources }) => {
-      var username = args.username;
-      var password = args.password;
-      const user = await dataSources.dbDataSource.getUserByName(username);
+    signInUser: async (_, args, { dbDataSource }) => {
+      var username = args.signInInfo.username;
+      var password = args.signInInfo.password;
+      const user = await dbDataSource.getUserByName(username);
       var response = {
         authenticated: false,
         user: null,
@@ -221,6 +222,8 @@ const resolvers = {
             expiresIn: process.env.TOKEN_EXPIRY,
           }
         );
+        console.log(`signinuser token - ${JSON.stringify(token)}`);
+
         response.JWT_TOKEN = token;
         response.user = user;
         response.authenticated = true;

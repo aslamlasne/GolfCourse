@@ -39,7 +39,7 @@ class dbDataSource extends DataSource {
 
   getUserByName = async (username) => {
     const mypool = this.createPool();
-    const result = await mypool.query(`SELECT * FROM users WHERE username = ${username};`);
+    const result = await mypool.query(`SELECT * FROM users WHERE username = '${username}';`);
     return result.rows[0];
   }
 

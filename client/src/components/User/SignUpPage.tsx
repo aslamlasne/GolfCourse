@@ -3,6 +3,7 @@ import { User } from '../../Models/User';
 import { gql, useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import UserForm from '../Shared/UserForm';
+import useSignedUser from '../../Services/useSignedUser';
 
 export const SIGNUP_USER = gql`
   mutation SignUpUser($newUser: UserInput) {
@@ -20,10 +21,16 @@ export const SIGNUP_USER = gql`
 `;
 
 function SignUpPage() {
+  const { signedInUser } = useSignedUser();
   const navigate = useNavigate();
   const user = new User();
 
   const [signupUser, newUser] = useMutation(SIGNUP_USER, {
+    context: {
+      headers: {
+        authorization: signedInUser.JWT_TOKEN
+      }
+    },
     update(cache, {data: {addedUser}}) {
       navigate("/home");
     }

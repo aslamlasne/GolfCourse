@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ValidationSummary from "./ValidationSummary";
-import { FormatDate, ValidateDate } from "../../Models/Utility";
+import { FormatDate, ValidateDate } from "../../Services/Utility";
 import { UserSelected } from "../../Models/Interfaces";
 import { User } from "../../Models/User";
 import { useNavigate } from "react-router-dom";
@@ -83,7 +83,6 @@ const UserForm: React.FC<UserSelected> = ({ selectedUser, onUserSelected }) => {
 
   const submit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    alert(timestamp(user_DateOfBirth));
     try {
       if (validateForm()) {
         const changedUser:User = {
@@ -97,7 +96,6 @@ const UserForm: React.FC<UserSelected> = ({ selectedUser, onUserSelected }) => {
           calculated_on: user_CalculatedOn ? timestamp(user_CalculatedOn) : null,
           email: user_Email
         };
-        alert(`submit - changedUser - ${JSON.stringify(changedUser)}`);
         onUserSelected(changedUser);
       }
     } catch (ex) {

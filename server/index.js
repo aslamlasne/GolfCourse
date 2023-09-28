@@ -7,11 +7,9 @@ require('dotenv').config();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  dataSources: () => ({
-    dbDataSource: new dbDataSource(),
-  }),
   context: req => ({
-    req
+    req,
+    dbDataSource: new dbDataSource()
   })
 })
 console.log(`process.env.API_PORT ${process.env.API_PORT}`);

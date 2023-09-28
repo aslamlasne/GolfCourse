@@ -17,7 +17,6 @@ function NavigationMenu() {
               </button>
               <ul className="dropdown-menu dropdown-menu-dark">
                 <li><a className="dropdown-item" href="/signup">Sign-up</a></li>
-                <li><a className="dropdown-item" href="/signin">Sign-in</a></li>
                 <li><a className="dropdown-item" href="/users">List</a></li>
               </ul>
             </li>

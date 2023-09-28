@@ -3,8 +3,8 @@ import { User } from '../../Models/User';
 import { gql, useQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { UserSelected } from '../../Models/Interfaces';
-import { FormatDate } from '../../Models/Utility';
-
+import { FormatDate } from '../../Services/Utility';
+import useSignedUser from '../../Services/useSignedUser';
 export const ALL_USERS = gql`
   query Users {
     users {
@@ -22,7 +22,14 @@ export const ALL_USERS = gql`
 `;
 
 const UserList = () => {
-  const { data, error, refetch, loading } = useQuery(ALL_USERS);
+  const { signedInUser } = useSignedUser();
+  const { data, error, refetch, loading } = useQuery(ALL_USERS, {
+    context: {
+      headers: {
+        authorization: signedInUser.JWT_TOKEN
+      }
+    },
+  });
   const navigate = useNavigate();
 
   const onSelectedUser = ( selectedUser: User ) => {
@@ -38,7 +45,6 @@ const UserList = () => {
     return <div>ERROR</div>;
   }
   const users = data.users;
-  console.log(`users ${JSON.stringify(users)}`);
   return<table className='table table-striped'><tbody>
     <tr>
     <th></th>

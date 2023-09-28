@@ -3,6 +3,7 @@ import { gql, useQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { CourseSelected } from '../../Models/Interfaces';
 import { GolfCourse } from '../../Models/GolfCourse';
+import useSignedUser from '../../Services/useSignedUser';
 
 export const ALL_COURSES = gql`
   query Courses {
@@ -16,7 +17,14 @@ export const ALL_COURSES = gql`
 `;
 
 const CourseList = () => {
-  const { data, error, loading } = useQuery(ALL_COURSES);
+  const { signedInUser } = useSignedUser();
+  const { data, error, loading } = useQuery(ALL_COURSES, {
+    context: {
+      headers: {
+        authorization: signedInUser.JWT_TOKEN
+      }
+    },
+  });
   const navigate = useNavigate();
 
   const onSelectedCourse = ( selectedCourse: GolfCourse ) => {

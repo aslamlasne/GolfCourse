@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { GolfCourse } from "../../Models/GolfCourse";
 import CourseForm from "../Shared/CourseForm";
 import CourseHoles from "../Shared/CourseHoles";
+import useSignedUser from "../../Services/useSignedUser";
 
 export const UPDATE_COURSE = gql`
   mutation UpdateCourse($changedCourse: GolfCourseInput!) {
@@ -47,17 +48,28 @@ export const GET_COURSE = gql`
 
 
 function CoursePage() {
+  const { signedInUser } = useSignedUser();
   const navigate = useNavigate();
   const { id } = useParams()
   const course = new GolfCourse();
 
   const [updateGolfCourse, changedCourse] = useMutation(UPDATE_COURSE, {
+    context: {
+      headers: {
+        authorization: signedInUser.JWT_TOKEN
+      }
+    },
     update(cache, {data: {updateGolfCourse}}) {
       navigate(`/courses/${updateGolfCourse.id}`);
     }
   });
 
   const [createGolfCourse, newCourse] = useMutation(CREATE_COURSE, {
+    context: {
+      headers: {
+        authorization: signedInUser.JWT_TOKEN
+      }
+    },
     update(cache, {data: {createGolfCourse}}) {
       navigate(`/courses/${createGolfCourse.id}`);
     }
@@ -89,9 +101,15 @@ function CoursePage() {
   }
   
   const LoadCourse = () => {
-    const { data, error, loading } = useQuery(GET_COURSE, {
-      variables: { id },
-    });
+    const { signedInUser } = useSignedUser();
+      const { data, error, loading } = useQuery(GET_COURSE, {
+        context: {
+          headers: {
+            authorization: signedInUser.JWT_TOKEN
+          },
+          variables: { id },
+        },        
+      });
   
     if (loading) {
       return <div>Loading...</div>;

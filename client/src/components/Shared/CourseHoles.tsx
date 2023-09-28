@@ -5,6 +5,7 @@ import { GolfCourse } from "../../Models/GolfCourse";
 import { ReactElement, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ValidationSummary from "./ValidationSummary";
+import useSignedUser from "../../Services/useSignedUser";
 
 export const SAVE_HOLE = gql`
   mutation AddUpdateHole($hole: HoleInput) {
@@ -41,7 +42,6 @@ const CourseHole: React.FC<HoleSelected> = ({ selectedHole, onHoleSelected }) =>
   const [screenMessages, setScreenMessages] = useState<string[]>([]);
 
   const setHole = (hole: Hole) => {
-    //alert(`setHole is called`);
     setHole_Index(hole.hole_index? hole.hole_index.toString() : '');
     setDistance_To_Hole(hole.distance_to_hole ? hole.distance_to_hole.toString() : '');
     setPar_Strokes(hole.par_strokes ? hole.par_strokes.toString() : '');
@@ -113,8 +113,14 @@ const LoadCourseHoles: React.FC<CourseSelected>  = ({ selectedCourse, onCourseSe
   const [screenMessages, setScreenMessages] = useState<string[]>([]);
   const golfCourse: GolfCourse = new GolfCourse();
   const golfCourseHoles:Hole[] = [];
+  const { signedInUser } = useSignedUser();
 
   const [addUpdateHole, changedHole] = useMutation(SAVE_HOLE, {
+    context: {
+      headers: {
+        authorization: signedInUser.JWT_TOKEN
+      }
+    },
     update(cache, {data: {addUpdateHole}}) {
       onCourseSelected(selectedCourse);
       refetch();
@@ -133,6 +139,11 @@ const LoadCourseHoles: React.FC<CourseSelected>  = ({ selectedCourse, onCourseSe
   }
 
   const { data, error, refetch, loading } = useQuery(GET_COURSE, {
+    context: {
+      headers: {
+        authorization: signedInUser.JWT_TOKEN
+      }
+    },
     variables: { id: selectedCourse.id },
   });
 
